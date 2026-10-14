@@ -4,7 +4,7 @@ go 1.26.4
 
 require (
 	github.com/google/nftables v0.3.0
-	golang.org/x/sys v0.48.0
+	golang.org/x/sys v0.49.0
 )
 
 require (

@@ -47,8 +47,11 @@ without `CAP_NET_ADMIN` cannot take them out.
 ## Requires
 
 - A Linux kernel with nftables.
-- Root, or the capabilities to enter another process's network namespace and
-  change its nftables ruleset.
+- Root, or these capabilities:
+  - `CAP_SYS_PTRACE` to open the namespace of a process that runs as another
+    user or holds capabilities egress-pin does not,
+  - `CAP_SYS_ADMIN` to enter it,
+  - `CAP_NET_ADMIN` to change its nftables ruleset.
 
 ## License
 

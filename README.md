@@ -16,7 +16,7 @@ egress-pin --pid 12345 --ip 10.0.0.12
 ```
 
 - `--pid` is any process in the namespace to pin.
-- `--ip` is the one IPv4 or IPv6 address the namespace may connect to.
+- `--ip` is the one IPv4 address the namespace may connect to.
 
 Both are required. A host name, a network or an empty value for `--ip` is
 refused.
@@ -36,6 +36,9 @@ Once pinned, the namespace's outbound traffic is dropped except for
 - anything on the loopback interface,
 - replies to connections made to it from outside,
 - anything to the `--ip` address.
+
+Since `--ip` is always IPv4 and neighbour discovery is dropped as well, IPv6
+cannot be relied on beyond the loopback interface.
 
 The rules are table `inet egress-pin` in the namespace's own nftables ruleset,
 not the host's. They go when the namespace goes, and a process inside it

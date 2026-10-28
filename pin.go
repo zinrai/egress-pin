@@ -26,6 +26,7 @@ func pin(pid int, ip netip.Addr) error {
 }
 
 func apply(c *nftables.Conn, ip netip.Addr) error {
+	// Not table ip: IPv6 would then leave the namespace unpinned
 	t := c.AddTable(&nftables.Table{Family: nftables.TableFamilyINet, Name: "egress-pin"})
 	// Not added to on a second run: emptied and refilled in the one batch, so
 	// the pin is replaced
@@ -75,21 +76,16 @@ func replies() []expr.Any {
 	}
 }
 
-const (
-	ipv4DstAddrOffset = 16
-	ipv6DstAddrOffset = 24
-)
+const ipv4DstAddrOffset = 16
 
 func destination(ip netip.Addr) []expr.Any {
-	proto, offset := byte(unix.NFPROTO_IPV4), uint32(ipv4DstAddrOffset)
-	if ip.Is6() {
-		proto, offset = byte(unix.NFPROTO_IPV6), uint32(ipv6DstAddrOffset)
-	}
-	addr := ip.AsSlice()
+	addr := ip.As4()
 	return []expr.Any{
+		// Not left to the address match alone: at the same offset an IPv6
+		// packet carries part of its source address
 		&expr.Meta{Key: expr.MetaKeyNFPROTO, Register: 1},
-		&expr.Cmp{Op: expr.CmpOpEq, Register: 1, Data: []byte{proto}},
-		&expr.Payload{DestRegister: 1, Base: expr.PayloadBaseNetworkHeader, Offset: offset, Len: uint32(len(addr))},
-		&expr.Cmp{Op: expr.CmpOpEq, Register: 1, Data: addr},
+		&expr.Cmp{Op: expr.CmpOpEq, Register: 1, Data: []byte{unix.NFPROTO_IPV4}},
+		&expr.Payload{DestRegister: 1, Base: expr.PayloadBaseNetworkHeader, Offset: ipv4DstAddrOffset, Len: uint32(len(addr))},
+		&expr.Cmp{Op: expr.CmpOpEq, Register: 1, Data: addr[:]},
 	}
 }

@@ -75,11 +75,12 @@ func (f *ipFlag) String() string {
 
 func (f *ipFlag) Set(s string) error {
 	a, err := netip.ParseAddr(s)
-	if err != nil || a.Zone() != "" {
-		return errors.New("not an IP address")
+	// Not refused as IPv6: ::ffff:a.b.c.d stands for an IPv4 address, and the
+	// packets to it carry that address
+	a = a.Unmap()
+	if err != nil || !a.Is4() {
+		return errors.New("not an IPv4 address")
 	}
-	// Not left as ::ffff:a.b.c.d: the packets it stands for carry the IPv4
-	// address, and an IPv6 match would never see them
-	f.value, f.set = a.Unmap(), true
+	f.value, f.set = a, true
 	return nil
 }

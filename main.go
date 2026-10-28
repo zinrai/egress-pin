@@ -40,10 +40,6 @@ func main() {
 	}
 }
 
-// Not the last of several: a second --ip would otherwise quietly replace the
-// first, and the namespace be pinned to an address the caller did not mean
-var errTwice = errors.New("given more than once")
-
 type pidFlag struct {
 	value int
 	set   bool
@@ -57,9 +53,6 @@ func (f *pidFlag) String() string {
 }
 
 func (f *pidFlag) Set(s string) error {
-	if f.set {
-		return errTwice
-	}
 	n, err := strconv.Atoi(s)
 	if err != nil || n <= 0 {
 		return errors.New("not a process id")
@@ -81,9 +74,6 @@ func (f *ipFlag) String() string {
 }
 
 func (f *ipFlag) Set(s string) error {
-	if f.set {
-		return errTwice
-	}
 	a, err := netip.ParseAddr(s)
 	if err != nil || a.Zone() != "" {
 		return errors.New("not an IP address")

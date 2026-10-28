@@ -18,8 +18,8 @@ egress-pin --pid 12345 --ip 10.0.0.12
 - `--pid` is any process in the namespace to pin.
 - `--ip` is the one IPv4 or IPv6 address the namespace may connect to.
 
-Both are required and both are taken once. A host name, a network or an empty
-value for `--ip` is refused.
+Both are required. A host name, a network or an empty value for `--ip` is
+refused.
 
 Running it again on the same namespace replaces the address rather than adding
 a second one.
